@@ -1,5 +1,5 @@
 import { Keyboard } from "./Keyboard";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { range } from "../util/array";
 import { getRandomWord, isProper } from "../util/dictionary";
 
@@ -40,6 +40,8 @@ export const Field = () => {
 
   const [correctWord, setCorrectWord] = useState(getRandomWord());
   const [peremoha, setPeremoha] = useState(false);
+  const [completedWordCount, setCompletedWordCount] = useState(0);
+  const [completedWorld, setCompletedWord] = useState<string[]>([]);
 
   const [blockedInput, setBlockedInput] = useState(false);
 
@@ -74,6 +76,8 @@ export const Field = () => {
       if (currentWord === correctWord) {
         setPeremoha(true);
       } else if (isProper(currentWord)) {
+        setCompletedWord((prev) => [...prev, currentWord]);
+        setCompletedWordCount((e) => e + 1);
         setBoard((prev) => {
           const nextBoard = deepCopyBoard(prev);
           getCurrentRow(nextBoard).forEach((cell: CellState, index) => {
@@ -100,11 +104,11 @@ export const Field = () => {
       setCorrectWord(getRandomWord());
       setBoard(getEmptyBoard());
       setPeremoha(false);
+      setCompletedWordCount(0);
     }
   };
 
   const handleBackspace = () => {
-    console.log("hello");
     if (currentWord && currentWord.length === WORD_LENGTH && !blockedInput) {
       return;
     }
@@ -141,7 +145,7 @@ export const Field = () => {
       }),
       {}
     );
-  }, [board]);
+  }, [completedWordCount]);
 
   if (peremoha) {
     return (
